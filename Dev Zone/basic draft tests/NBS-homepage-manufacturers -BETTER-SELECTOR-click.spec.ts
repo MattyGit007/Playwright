@@ -7,6 +7,7 @@ test('Click on Manufacturers', async ({ page }) => {
     await page.getByRole('button', { name: 'search' }).click();
     //await page.waitForTimeout(5000);
     // await page.locator('.mat-mdc-tab-links a').filter({ hasText: 'Manufacturers' }).click();
+
     await page.getByRole('link', { name: "I'm a manufacturer" }).click();
     await page.waitForTimeout(5000);
 });

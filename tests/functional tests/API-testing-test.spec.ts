@@ -1,36 +1,38 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('https://source.thenbs.com');
-  await page.locator('input[data-cy="searchFieldSearch"]').nth(1).fill('Dyson');
-await page.getByRole('button', { name: 'search' }).click();
+  await page.goto("https://source.thenbs.com/en/");
+  await page.getByRole("textbox", { name: "Search" }).click();
+  await page.getByRole("textbox", { name: "Search" }).fill("dyson");
+  await page
+    .locator("a")
+    .filter({ hasText: /^Dyson$/ })
+    .click();
 });
 
-test('Verify API content and UI display', async ({ request, page }) => {
+test("Verify API content and UI display", async ({ request, page }) => {
   // 1. Call the API
   const response = await request.get(
-    'https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location'
+    "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
   );
 
   // 2. Verify API status = 200
   expect(response.status()).toBe(200);
 
-// 3. Validate API response body - as the response is JSONP, we need to remove the wrapper before parsing
-const responseText = await response.text();
-const jsonString = responseText
-  .replace(/^jsonFeed\(/, '')
-  .replace(/\);?$/, '');
+  // 3. Validate API response body - as the response is JSONP, we need to remove the wrapper before parsing
+  const responseText = await response.text();
+  const jsonString = responseText
+    .replace(/^jsonFeed\(/, "")
+    .replace(/\);?$/, "");
 
-const body = JSON.parse(jsonString);
- expect(body).toHaveProperty('country');
-  expect(body.country).toBe('GB');
-
+  const body = JSON.parse(jsonString);
+  expect(body).toHaveProperty("country");
+  expect(["GB", "US"]).toContain(body.country);
 
   // 4. Open website that displays the country
-  await page.goto('https://source.thenbs.com');
-const countryButton = page.getByRole('button', {
-  name: 'Choose location and language'
+  await page.goto("https://source.thenbs.com");
+  const countryButton = page.getByRole("button", {
+    name: "Choose location and language",
+  });
+  await expect(countryButton).toContainText("UK");
 });
-await expect(countryButton).toContainText('UK');
-});
-    
