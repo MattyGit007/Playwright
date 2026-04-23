@@ -5,13 +5,10 @@ import { createHtmlReport } from "axe-html-reporter";
 import fs from "fs";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("https://source.thenbs.com/en/");
-  await page.getByRole("textbox", { name: "Search" }).click();
-  await page.getByRole("textbox", { name: "Search" }).fill("dyson");
-  await page
-    .locator("a")
-    .filter({ hasText: /^Dyson$/ })
-    .click();
+  await page.goto('https://source.thenbs.com/en/');
+  await page.getByRole('textbox', { name: 'Search' }).click();
+  await page.keyboard.type('dyson');
+  await page.locator('a').filter({ hasText: /^Dyson$/ }).click();
 });
 test("NBS homepage accessibility test pass if less than 2000", async ({ page }) => {
   const accessibilityScanResults = await new AxeBuilder({ page }).analyze();

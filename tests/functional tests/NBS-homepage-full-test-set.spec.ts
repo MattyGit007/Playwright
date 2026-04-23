@@ -2,13 +2,10 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("https://source.thenbs.com/en/");
-  await page.getByRole("textbox", { name: "Search" }).click();
-  await page.getByRole("textbox", { name: "Search" }).fill("dyson");
-  await page
-    .locator("a")
-    .filter({ hasText: /^Dyson$/ })
-    .click();
+await page.goto('https://source.thenbs.com/en/');
+  await page.getByRole('textbox', { name: 'Search' }).click();
+  await page.keyboard.type('dyson');
+  await page.locator('a').filter({ hasText: /^Dyson$/ }).click();
 });
 
 test("1 NBS homepage loads", async ({ page }) => {
