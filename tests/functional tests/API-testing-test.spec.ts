@@ -1,11 +1,20 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
- await page.goto('https://source.thenbs.com/en/');
+  await page.goto('https://source.thenbs.com/en/');
+
+  // Focus search box and enter search term
   await page.getByRole('textbox', { name: 'Search' }).click();
-  await page.keyboard.type('dyson');
-  await page.locator('a').filter({ hasText: /^Dyson$/ }).click();
+  await page.getByRole('textbox', { name: 'Search' }).fill('dyson');
+
+  // Click result AND wait for navigation (CI-safe)
+  await Promise.all([
+    page.waitForURL(/dyson/i),
+    page.locator('a', { hasText: /^Dyson$/ }).click(),
+  ]);
 });
+
+
 
 test("Verify API content and UI display", async ({ request, page }) => {
   // 1. Call the API

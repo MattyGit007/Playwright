@@ -2,14 +2,22 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.beforeEach(async ({ page }) => {
-await page.goto('https://source.thenbs.com/en/');
+  await page.goto('https://source.thenbs.com/en/');
+
+  // Focus search box and enter search term
   await page.getByRole('textbox', { name: 'Search' }).click();
-  await page.keyboard.type('dyson');
-  await page.locator('a').filter({ hasText: /^Dyson$/ }).click();
+  await page.getByRole('textbox', { name: 'Search' }).fill('dyson');
+
+  // Click result AND wait for navigation (CI-safe)
+  await Promise.all([
+    page.waitForURL(/dyson/i),
+    page.locator('a', { hasText: /^Dyson$/ }).click(),
+  ]);
 });
 
-test("1 NBS homepage loads", async ({ page }) => {
-  await expect(page).toHaveTitle(/NBS/);
+
+test("1 Dyson homepage loads", async ({ page }) => {
+  await expect(page).toHaveTitle(/Dyson/i);
 });
 
 test("2 Click on I'm a manufacturer", async ({ page }) => {
