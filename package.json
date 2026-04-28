@@ -19,5 +19,8 @@
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.12.2",
     "axe-html-reporter": "^2.2.11"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }
