@@ -12,25 +12,23 @@ test.beforeEach(async ({ page }) => {
   await Promise.all([
     page.waitForURL(/dyson/i),
     page.locator("a", { hasText: /^Dyson$/ }).click(),
-  ]);
+    ]);
+    await expect(page).toHaveTitle(/Dyson/i);
+  
 });
 
-test("1 Dyson homepage loads", async ({ page }) => {
-  await expect(page).toHaveTitle(/Dyson/i);
-});
-
-test("2 Click on I'm a manufacturer", async ({ page }) => {
+test("1 Click on I'm a manufacturer", async ({ page }) => {
   await page.getByRole("link", { name: "I\'m a manufacturer" }).click();
 });
 
-test("3 Click on Inspiration", async ({ page }) => {
+test("2 Click on Inspiration", async ({ page }) => {
   await page.getByRole("link", { name: "Inspiration" }).click();
   await page
     .getByRole("heading", { name: "Helping you find the next big" })
     .isVisible();
 });
 
-test(" 4 validate app view container contents", async ({ page }) => {
+test(" 3 validate app view container contents", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
   await expect(page.getByRole("link", { name: "What\'s new" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Browse" })).toBeVisible();
@@ -40,7 +38,7 @@ test(" 4 validate app view container contents", async ({ page }) => {
   await expect(page.getByRole("link", { name: "CPD" })).toBeVisible();
 });
 
-test("5 validate app view container contents and order", async ({ page }) => {
+test("4 validate app view container contents and order", async ({ page }) => {
   const items = [
     page.getByRole("link", { name: "Home" }),
     page.getByRole("link", { name: "What's new" }),

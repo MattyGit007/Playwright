@@ -12,19 +12,23 @@ test.beforeEach(async ({ page }) => {
   // Focus search box and enter search term
   await page.getByRole("textbox", { name: "Search" }).click();
   await page.getByRole("textbox", { name: "Search" }).fill("dyson");
+ 
 
   // Click result AND wait for navigation (CI safe)
   await Promise.all([
     page.waitForURL(/dyson/i),
     page.locator("a", { hasText: /^Dyson$/ }).click(),
-  ]);
+    ]);
+     await expect(page).toHaveTitle(/Dyson/i);
+  
 });
 
-test("test login via sign in button and same page confirmation", async ({ page }) => {
-  await expect(page).toHaveURL(
-    /\/manufacturer\/dyson\/nakAxHWxDZprdqkBaCdn4U\/overview$/,
-  );
-
+test("test login via sign in button and same page confirmation", async ({
+  page,
+}) => {
+  // Capture current URL before login
+  const capturedUrl = page.url();
+// Click sign in and perform login with email address and password
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("textbox", { name: "Email address" }).click();
   await page
@@ -40,10 +44,17 @@ test("test login via sign in button and same page confirmation", async ({ page }
     .fill(process.env.NBS_PASSWORD!);
 
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page).toHaveURL(
-    /\/manufacturer\/dyson\/nakAxHWxDZprdqkBaCdn4U\/overview$/,
-  );
-  const userMenuButton = page.getByRole("button", { name: "Open user menu" });
+
+  
+  // Wait for auth redirect to complete
+  await page.waitForURL(url => !url.pathname.includes("/authorize"));
+
+
+// Assert user remains on the same page
+expect(new URL(page.url()).pathname).toBe(new URL(capturedUrl).pathname);
+
+// Assert user menu button is visible and displays user initials (SP)
+const userMenuButton = page.getByRole("button", { name: "Open user menu" });
   await expect(userMenuButton).toBeVisible();
   await expect(userMenuButton).toHaveText("SP");
 });

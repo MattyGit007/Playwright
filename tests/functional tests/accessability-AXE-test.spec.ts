@@ -10,12 +10,15 @@ test.beforeEach(async ({ page }) => {
   // Focus search box and enter search term
   await page.getByRole('textbox', { name: 'Search' }).click();
   await page.getByRole('textbox', { name: 'Search' }).fill('dyson');
+  
 
   // Click result AND wait for navigation (CI-safe)
   await Promise.all([
     page.waitForURL(/dyson/i),
     page.locator('a', { hasText: /^Dyson$/ }).click(),
-  ]);
+    ]);
+await expect(page).toHaveTitle(/Dyson/i);
+  
 });
 
 test("Dyson manufacturer page Accessibility test", async ({ page }) => {
