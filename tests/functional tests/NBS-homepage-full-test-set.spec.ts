@@ -9,6 +9,9 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+// increase the default test timeout for this file since page loads and interactions can take a while
+test.describe.configure({ timeout: 60000 });
+
 // beforeEach runs automatically before every test in this file.
 // It navigates to the NBS Source homepage, searches for "Dyson", and lands on
 // the Dyson manufacturer page — ready for each test to begin.
@@ -25,7 +28,7 @@ test.beforeEach(async ({ page }) => {
     attempt++;
     try {
       // Wait for the page HTML to be fully loaded before interacting with it.
-      await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
+      await page.waitForLoadState("domcontentloaded");
 
       // Clears any prior value then types character-by-character to trigger the autocomplete debounce.
       await searchBox.click();
@@ -39,7 +42,7 @@ test.beforeEach(async ({ page }) => {
       if (await dysonResult.isVisible()) {
         // Promise.all ensures we don't miss the navigation event triggered by the click.
         await Promise.all([
-          page.waitForURL(/dyson/i, { timeout: 30000 }),
+          page.waitForURL(/dyson/i, { timeout: 40000 }),
           dysonResult.click(),
         ]);
         return;

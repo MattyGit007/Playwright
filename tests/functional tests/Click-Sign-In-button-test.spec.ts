@@ -12,6 +12,9 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+// increase the default test timeout for this file since login flows can take a while with network requests and redirects involved
+test.describe.configure({ timeout: 60000 });
+
 // Guard clause: fail loudly at load time if credentials are missing.
 // This prevents confusing "element not found" errors deep inside the test when
 // the real problem is simply that the .env file hasn't been configured.
@@ -73,8 +76,8 @@ test("test login via sign in button and same page confirmation", async ({
   // Open the sign-in modal and fill in the email address from the .env file.
   // The "!" after process.env.NBS_USERNAME tells TypeScript: "I've already checked
   // this isn't undefined" (the guard clause above handles that case).
-  await page.getByRole("button", { name: "Sign in" }).click({ timeout: 15000 });
-  await page.getByRole("textbox", { name: "Email address" }).click({ timeout: 15000 });
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).click();
   await page
     .getByRole("textbox", { name: "Email address" })
     .fill(process.env.NBS_USERNAME!);
@@ -83,13 +86,13 @@ test("test login via sign in button and same page confirmation", async ({
   await page.getByRole("button", { name: "Next" }).click();
 
   // Fill in the password from the .env file and submit.
-  await page.getByRole("textbox", { name: "Password" }).click({ timeout: 15000 });
+  await page.getByRole("textbox", { name: "Password" }).click({ timeout: 30000 });
   await page
     .getByRole("textbox", { name: "Password" })
     .fill(process.env.NBS_PASSWORD!);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await page.waitForLoadState("networkidle", { timeout: 30000 });
+  await page.waitForLoadState("networkidle", { timeout: 60000 });
 
   // Wait for the OAuth redirect loop to finish — the URL briefly contains "/authorize"
   // during authentication. We wait until that's gone before making assertions.

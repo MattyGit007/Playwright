@@ -10,6 +10,9 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+// increase the default test timeout for this file since page loads and interactions can take a while
+test.describe.configure({ timeout: 60000 });
+
 // beforeEach runs automatically before every test in this file.
 // It navigates to NBS Source and lands on the Dyson manufacturer page.
 test.beforeEach(async ({ page }) => {
@@ -62,14 +65,14 @@ test("Verify back to top button functionality", async ({ page }) => {
   // The button should be hidden at the top of the page — no need to show it until the user scrolls.
   await expect(backToTopButton).not.toBeVisible();
 
-  // Scroll all the way to the bottom of the page using JavaScript executed inside the browser.
-  // document.body.scrollHeight is the total height of the page content.
+  // Force an instant jump to the bottom — bypasses CSS smooth-scroll animation
+  // which behaves differently in headed vs headless mode and races with the assertions.
   await page.evaluate(() => {
-    window.scrollTo(0, document.body.scrollHeight);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
   });
 
   // After scrolling down, the button should now be visible.
-  await expect(backToTopButton).toBeVisible();
+  await expect(backToTopButton).toBeVisible({ timeout: 10000 });
 
   // Click the button to scroll back to the top.
   await backToTopButton.click();
@@ -78,9 +81,9 @@ test("Verify back to top button functionality", async ({ page }) => {
   // This is CI-safe because scroll animations can take a moment to complete.
   // window.scrollY is the current vertical scroll position (0 = top of page).
   await expect
-    .poll(async () => page.evaluate(() => window.scrollY))
+    .poll(async () => page.evaluate(() => window.scrollY), { timeout: 10000 })
     .toBe(0);
 
   // Once back at the top, the button should hide itself again.
-  await expect(backToTopButton).not.toBeVisible();
+  await expect(backToTopButton).not.toBeVisible({ timeout: 10000 });
 });

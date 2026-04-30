@@ -12,6 +12,9 @@
 
 import { test, expect } from "@playwright/test";
 
+// increase the default test timeout for this file since API calls and page loads can take a while
+test.describe.configure({ timeout: 60000 });
+
 // beforeEach runs automatically before every test in this file.
 // It navigates to NBS Source and lands on the Dyson manufacturer page.
 test.beforeEach(async ({ page }) => {
@@ -27,7 +30,7 @@ test.beforeEach(async ({ page }) => {
     attempt++;
     try {
       // Wait for the page HTML to be fully loaded before interacting with it.
-      await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
+      await page.waitForLoadState("domcontentloaded", { timeout: 60000 });
 
       // Clears any prior value then types character-by-character to trigger the autocomplete debounce.
       await searchBox.click();
