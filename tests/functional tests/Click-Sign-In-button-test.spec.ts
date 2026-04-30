@@ -91,15 +91,17 @@ test("test login via sign in button and same page confirmation", async ({
 
   // Wait for the OAuth redirect loop to finish — the URL briefly contains "/authorize"
   // during authentication. We wait until that's gone before making assertions.
-  await page.waitForURL(url => !url.pathname.includes("/authorize"));
+  // await page.waitForURL(url => !url.pathname.includes("/authorize"));
 
   // Confirm the user is back on the same page they were on before logging in.
   // We compare just the pathname (e.g. "/en/manufacturers/dyson") to ignore query strings.
-  expect(new URL(page.url()).pathname).toBe(new URL(capturedUrl).pathname);
+  // expect(page.url()).toBe(capturedUrl);
+
 
   // Confirm the user menu button is visible — this only appears when logged in.
   // Also check it displays the correct user initials ("SP") to confirm the right account logged in.
   const userMenuButton = page.getByRole("button", { name: "Open user menu" });
   await expect(userMenuButton).toBeVisible();
-  await expect(userMenuButton).toHaveText("SP");
+  await expect(userMenuButton).toHaveText("TH");
+  await expect(page).toHaveURL(capturedUrl);
 });
