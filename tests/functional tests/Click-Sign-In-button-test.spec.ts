@@ -73,8 +73,8 @@ test("test login via sign in button and same page confirmation", async ({
   // Open the sign-in modal and fill in the email address from the .env file.
   // The "!" after process.env.NBS_USERNAME tells TypeScript: "I've already checked
   // this isn't undefined" (the guard clause above handles that case).
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByRole("textbox", { name: "Email address" }).click();
+  await page.getByRole("button", { name: "Sign in" }).click({ timeout: 15000 });
+  await page.getByRole("textbox", { name: "Email address" }).click({ timeout: 15000 });
   await page
     .getByRole("textbox", { name: "Email address" })
     .fill(process.env.NBS_USERNAME!);
@@ -83,11 +83,13 @@ test("test login via sign in button and same page confirmation", async ({
   await page.getByRole("button", { name: "Next" }).click();
 
   // Fill in the password from the .env file and submit.
-  await page.getByRole("textbox", { name: "Password" }).click();
+  await page.getByRole("textbox", { name: "Password" }).click({ timeout: 15000 });
   await page
     .getByRole("textbox", { name: "Password" })
     .fill(process.env.NBS_PASSWORD!);
   await page.getByRole("button", { name: "Sign in" }).click();
+
+  await page.waitForLoadState("networkidle", { timeout: 30000 });
 
   // Wait for the OAuth redirect loop to finish — the URL briefly contains "/authorize"
   // during authentication. We wait until that's gone before making assertions.
@@ -101,7 +103,7 @@ test("test login via sign in button and same page confirmation", async ({
   // Confirm the user menu button is visible — this only appears when logged in.
   // Also check it displays the correct user initials ("SP") to confirm the right account logged in.
   const userMenuButton = page.getByRole("button", { name: "Open user menu" });
-  await expect(userMenuButton).toBeVisible();
+  await expect(userMenuButton).toBeVisible({ timeout: 15000 });
   await expect(userMenuButton).toHaveText("TH");
   await expect(page).toHaveURL(capturedUrl);
 });

@@ -16,11 +16,15 @@ import AxeBuilder from "@axe-core/playwright";
 import { createHtmlReport } from "axe-html-reporter";
 import fs from "fs";
 
+// increase the default test timeout for this file since AXE scans can take a while on complex pages
+test.describe.configure({ timeout: 60000 });
+
 // beforeEach runs automatically before every test in this file.
 // It navigates to the NBS Source homepage and searches for "Dyson" so that each
 // test starts on the Dyson manufacturer page — no duplication needed inside tests.
 test.beforeEach(async ({ page }) => {
   await page.goto('https://source.thenbs.com/en/');
+
 
   // Retry the search up to 3 times in case the autocomplete dropdown is slow to appear.
   const maxAttempts = 3;
