@@ -16,13 +16,13 @@ test.describe.configure({ timeout: 60000 });
 // It navigates to the NBS Source homepage, searches for "Dyson", and lands on
 // the Dyson manufacturer page — ready for each test to begin.
 test.beforeEach(async ({ page }) => {
-  await page.goto('https://source.thenbs.com/en/');
+  await page.goto("https://source.thenbs.com/en/");
 
   // Retry the search up to 3 times in case the autocomplete dropdown is slow to appear.
   const maxAttempts = 3;
   let attempt = 0;
-  const searchBox = page.getByRole('textbox', { name: 'Search' });
-  const dysonResult = page.locator('a', { hasText: /^Dyson$/ });
+  const searchBox = page.getByRole("textbox", { name: "Search" });
+  const dysonResult = page.locator("a", { hasText: /^Dyson$/ });
 
   while (attempt < maxAttempts) {
     attempt++;
@@ -32,12 +32,12 @@ test.beforeEach(async ({ page }) => {
 
       // Clears any prior value then types character-by-character to trigger the autocomplete debounce.
       await searchBox.click();
-      await searchBox.fill('');
-      await searchBox.type('Dyson', { delay: 150 });
+      await searchBox.fill("");
+      await searchBox.type("Dyson", { delay: 150 });
       // Short pause to let the autocomplete dropdown populate after the final keystroke.
       await page.waitForTimeout(600);
 
-      await dysonResult.waitFor({ state: 'visible', timeout: 20000 });
+      await dysonResult.waitFor({ state: "visible", timeout: 20000 });
 
       if (await dysonResult.isVisible()) {
         // Promise.all ensures we don't miss the navigation event triggered by the click.
@@ -58,17 +58,33 @@ test.beforeEach(async ({ page }) => {
   }
 });
 
-// Test 1: Verifies the "I'm a manufacturer" link exists and is clickable.
-test("1 Click on I'm a manufacturer", async ({ page }) => {
-  await page.getByRole("link", { name: "I\'m a manufacturer" }).click();
+// Test 1: Verifies the 'Im a manufacturer' button is visable, shows expected text and has the correct underlying href.
+test("1 Validate the I'm a manufacturer button features", async ({ page }) => {
+  // Checks that the link is visible
+  await expect(
+    page.getByRole("link", { name: "I\'m a manufacturer" }),
+  ).toBeVisible();
+  // expect the link to show the text "I'm a manufacturer" (case-insensitive) to confirm it's the correct element
+  await expect(
+    page.getByRole("link", { name: "I\'m a manufacturer" }),
+  ).toHaveText(/i\'?m a manufacturer/i);
+  // Checks that the link has an href attribute pointing to a manufacturer-related URL
+  await expect(
+    page.getByRole("link", { name: "I\'m a manufacturer" }),
+  ).toHaveAttribute("href", /manufacturer/);
 });
 
-// Test 2: Clicks the Inspiration link and confirms the correct landing heading is shown.
-test("2 Click on Inspiration", async ({ page }) => {
-  await page.getByRole("link", { name: "Inspiration" }).click();
-  await page
-    .getByRole("heading", { name: "Helping you find the next big" })
-    .isVisible();
+// Test 2: Verifies the 'Inspiration' button is visable, shows expected text and has the correct underlying href.
+test("2 Inspiration nav button is visible and has correct href", async ({
+  page,
+}) => {
+  const inspirationNavButton = page.locator('[data-cy="inspirationNavButton"]');
+
+  // 1. Validate the link is visible
+  await expect(inspirationNavButton).toBeVisible();
+
+  // 2. Validate the underlying href
+  await expect(inspirationNavButton).toHaveAttribute("href", "/en/inspiration");
 });
 
 // Test 3: Checks that all expected navigation items are visible on the page.
