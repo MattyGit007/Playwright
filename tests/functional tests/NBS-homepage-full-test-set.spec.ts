@@ -18,44 +18,77 @@ test.describe.configure({ timeout: 60000 });
 test.beforeEach(async ({ page }) => {
   await page.goto("https://source.thenbs.com/en/");
 
-  // Retry the search up to 3 times in case the autocomplete dropdown is slow to appear.
+  // The search box at the top of the page. We pick the visible one because the
+  // page has a hidden copy used on mobile screens.
+  const searchField = page
+    .locator('[data-cy="searchFieldSearch"]')
+    .filter({ visible: true })
+    .first();
+  // The dropdown panel that appears under the search box as you type.
+  const searchAutocomplete = page.locator("app-autocomplete");
+  // The "Dyson" link inside the dropdown's Manufacturers section.
+  // We target the manufacturers section so we don't accidentally click one
+  // of the product results listed below it.
+  const dysonManufacturerOption = page.locator(
+    'app-autocomplete article.manufacturers a[href*="/manufacturer/dyson/"]',
+  );
+
+  // Try the search up to 3 times in case the dropdown is slow to show up.
   const maxAttempts = 3;
-  let attempt = 0;
-  const searchBox = page.getByRole("textbox", { name: "Search" });
-  const dysonResult = page.locator("a", { hasText: /^Dyson$/ });
+  const dropdownTimeout = 5000;
 
-  while (attempt < maxAttempts) {
-    attempt++;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      // Wait for the page HTML to be fully loaded before interacting with it.
-      await page.waitForLoadState("domcontentloaded");
+      // Wait for the page to load before typing, otherwise the search box
+      // might not be ready and our keystrokes get lost.
+      await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
 
-      // Clears any prior value then types character-by-character to trigger the autocomplete debounce.
-      await searchBox.click();
-      await searchBox.fill("");
-      await searchBox.type("Dyson", { delay: 150 });
-      // Short pause to let the autocomplete dropdown populate after the final keystroke.
-      await page.waitForTimeout(600);
+      // Click the box, clear it, then type "Dyson" one letter at a time.
+      // The small delay gives the site time to react to each keystroke.
+      await searchField.click();
+      await searchField.fill("");
+      await searchField.pressSequentially("Dyson", { delay: 100 });
 
-      await dysonResult.waitFor({ state: "visible", timeout: 20000 });
-
-      if (await dysonResult.isVisible()) {
-        // Promise.all ensures we don't miss the navigation event triggered by the click.
-        await Promise.all([
-          page.waitForURL(/dyson/i, { timeout: 40000 }),
-          dysonResult.click(),
-        ]);
-        return;
+      // Wait up to 5 seconds for the dropdown to appear.
+      try {
+        await searchAutocomplete.waitFor({
+          state: "visible",
+          timeout: dropdownTimeout,
+        });
+      } catch {
+        // If the dropdown didn't open, clear the box and type again.
+        // This usually fixes it without needing to reload the page.
+        await searchField.fill("");
+        await searchField.pressSequentially("Dyson", { delay: 100 });
+        await searchAutocomplete.waitFor({
+          state: "visible",
+          timeout: dropdownTimeout,
+        });
       }
+
+      // Click the Dyson result AND wait for the URL to change to the Dyson page.
+      // Doing both together means the test fails if the click doesn't navigate,
+      // instead of silently carrying on.
+      await Promise.all([
+        page.waitForURL(/\/manufacturer\/dyson\//, { timeout: 30000 }),
+        dysonManufacturerOption.click({ timeout: 10000 }),
+      ]);
+      return;
     } catch (error) {
-      console.warn(`Attempt ${attempt} failed:`, error);
+      // Log the failure so we can see it in the test output, then try again.
+      console.warn(`Attempt ${attempt} to search for "Dyson" failed:`, error);
     }
 
-    // Reloads the page before the next attempt if the dropdown did not appear.
+    // If this wasn't the last attempt, reload the page and try again.
     if (attempt < maxAttempts && !page.isClosed()) {
       await page.reload({ waitUntil: "domcontentloaded", timeout: 20000 });
     }
   }
+
+  // We ran out of attempts and never reached the Dyson page.
+  throw new Error(
+    `Failed to find and click the "Dyson" search result after ${maxAttempts} attempts (with page reloads).`,
+  );
 });
 
 // Test 1: Verifies the 'Im a manufacturer' button is visable, shows expected text and has the correct underlying href.
