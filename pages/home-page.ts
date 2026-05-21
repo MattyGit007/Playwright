@@ -105,4 +105,13 @@ export class HomePage extends BasePage {
       }
     }
   }
+
+  // ACTION: verifyImAManufacturerButton
+  // Checks the "I'm a manufacturer" button on the homepage.
+  // `Promise<void>` is the return type — it means this method returns NO value,
+  // it only performs checks.
+  // Empty for now — ready for the verification (expect) code to be migrated in.
+  async verifyImAManufacturerButton(): Promise<void> {
+    // TODO: migrate the "I'm a manufacturer" button checks here.
+  }
 }
