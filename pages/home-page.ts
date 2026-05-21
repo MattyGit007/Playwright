@@ -16,47 +16,39 @@ import { BasePage } from "./base-page";
 export class HomePage extends BasePage {
   // ===========================================================================
   // LOCATORS  —  elements on the homepage.
-  // Declare each one here. Create it inside the constructor below.
-  //
-  // The before-hook actions further down need the search box, so that is the
-  // first locator to migrate:
-  // readonly searchBox: Locator;
+  // Declared here as `readonly` fields; created in the constructor below.
   // ===========================================================================
+
+  // The search box in the site header. Typing here opens an autocomplete
+  // dropdown of matching results.
+  readonly searchBox: Locator;
 
 
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
     super(page);
 
-    // Create the homepage LOCATORS here. Example:
-    // this.searchBox = page.getByRole("textbox", { name: "Search" });
+    // Create the homepage LOCATORS here.
+    this.searchBox = page.getByRole("textbox", { name: "Search" });
   }
 
 
   // ===========================================================================
   // ACTIONS  —  things you do on the homepage.
   //
-  // The two methods below are the "before hook" outline. Today the test files
-  // do this setup inside `test.beforeEach`. The plan is to move that low-level
-  // code into these methods, so the hook becomes two short, readable lines:
+  // Once the test files call these, the beforeEach hook becomes two short lines:
   //
   //   test.beforeEach(async ({ homePage }) => {
   //     await homePage.goto();
   //     await homePage.searchForManufacturer("Dyson");
   //   });
-  //
-  // The method BODIES are empty on purpose — they are ready for the real
-  // Playwright code to be migrated in.
   // ===========================================================================
 
   // ACTION: goto
   // Opens the NBS Source homepage. This is the starting point for every
   // journey, so most `beforeEach` hooks call this first.
-  //
-  // TO MIGRATE — move this line out of the spec's beforeEach into here:
-  //   await this.page.goto("https://source.thenbs.com/en/");
   async goto(): Promise<void> {
-    // TODO: migrate the page.goto(...) call here.
+    await this.page.goto("https://source.thenbs.com/en/");
   }
 
   // ACTION: searchForManufacturer
@@ -65,19 +57,52 @@ export class HomePage extends BasePage {
   // that manufacturer's page.
   //
   // `manufacturerName` — the name to search for, e.g. "Dyson".
-  //
-  // TO MIGRATE — move the search/retry logic out of the spec's beforeEach.
-  // The original steps were:
-  //   1. Retry up to 3 times (the autocomplete dropdown can be slow).
-  //   2. Wait for the page HTML to load  (waitForLoadState "domcontentloaded").
-  //   3. Click the search box, clear it, type the name slowly (delay: 150).
-  //   4. Wait for the matching result link to become visible.
-  //   5. Click it and wait for the URL to change to the manufacturer's page.
-  //   6. If an attempt fails, reload the page and try again.
-  //
-  // Tip: use the `manufacturerName` parameter instead of a hard-coded "Dyson"
-  // so this one method works for ANY manufacturer.
   async searchForManufacturer(manufacturerName: string): Promise<void> {
-    // TODO: migrate the search-and-navigate logic here.
+    // The matching result link in the autocomplete dropdown.
+    // This locator is built HERE rather than in the LOCATORS section because it
+    // depends on `manufacturerName`, which only has a value when the method runs.
+    // The regex `^name$` makes it match the name exactly.
+    const manufacturerResult = this.page.locator("a", {
+      hasText: new RegExp(`^${manufacturerName}$`),
+    });
+
+    // Retry the search up to 3 times in case the autocomplete dropdown is slow.
+    const maxAttempts = 3;
+    let attempt = 0;
+
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        // Wait for the page HTML to be fully loaded before interacting with it.
+        await this.page.waitForLoadState("domcontentloaded");
+
+        // Clear any prior value, then type slowly to trigger the autocomplete debounce.
+        await this.searchBox.click();
+        await this.searchBox.fill("");
+        await this.searchBox.pressSequentially(manufacturerName, { delay: 150 });
+        // Short pause to let the dropdown populate after the final keystroke.
+        await this.page.waitForTimeout(600);
+
+        await manufacturerResult.waitFor({ state: "visible", timeout: 20000 });
+
+        if (await manufacturerResult.isVisible()) {
+          // Promise.all ensures we don't miss the navigation triggered by the click.
+          await Promise.all([
+            this.page.waitForURL(new RegExp(manufacturerName, "i"), {
+              timeout: 40000,
+            }),
+            manufacturerResult.click(),
+          ]);
+          return;
+        }
+      } catch (error) {
+        console.warn(`Attempt ${attempt} failed:`, error);
+      }
+
+      // Reload the page before the next attempt if the dropdown did not appear.
+      if (attempt < maxAttempts && !this.page.isClosed()) {
+        await this.page.reload({ waitUntil: "domcontentloaded", timeout: 20000 });
+      }
+    }
   }
 }
