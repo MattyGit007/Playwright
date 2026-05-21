@@ -6,7 +6,9 @@
 // All tests share the same starting point (Dyson manufacturer page) which is set up
 // in beforeEach — so each test only needs to describe what it checks, not how to get there.
 
-import { test, expect } from "@playwright/test";
+// `test` and `expect` come from our fixtures file (NOT "@playwright/test").
+// That is what makes `homePage`, `dysonPage` etc. available in the tests below.
+import { test, expect } from "../../fixtures/test-fixtures";
 import AxeBuilder from "@axe-core/playwright";
 import { createHtmlReport } from "axe-html-reporter";
 import fs from "fs";
@@ -17,47 +19,9 @@ test.describe.configure({ timeout: 60000 });
 // beforeEach runs automatically before every test in this file.
 // It navigates to the NBS Source homepage, searches for "Dyson", and lands on
 // the Dyson manufacturer page — ready for each test to begin.
-test.beforeEach(async ({ page }) => {
-  await page.goto("https://source.thenbs.com/en/");
-
-  // Retry the search up to 3 times in case the autocomplete dropdown is slow to appear.
-  const maxAttempts = 3;
-  let attempt = 0;
-  const searchBox = page.getByRole("textbox", { name: "Search" });
-  const dysonResult = page.locator("a", { hasText: /^Dyson$/ });
-
-  while (attempt < maxAttempts) {
-    attempt++;
-    try {
-      // Wait for the page HTML to be fully loaded before interacting with it.
-      await page.waitForLoadState("domcontentloaded");
-
-      // Clears any prior value then types character-by-character to trigger the autocomplete debounce.
-      await searchBox.click();
-      await searchBox.fill("");
-      await searchBox.type("Dyson", { delay: 150 });
-      // Short pause to let the autocomplete dropdown populate after the final keystroke.
-      await page.waitForTimeout(600);
-
-      await dysonResult.waitFor({ state: "visible", timeout: 20000 });
-
-      if (await dysonResult.isVisible()) {
-        // Promise.all ensures we don't miss the navigation event triggered by the click.
-        await Promise.all([
-          page.waitForURL(/dyson/i, { timeout: 40000 }),
-          dysonResult.click(),
-        ]);
-        return;
-      }
-    } catch (error) {
-      console.warn(`Attempt ${attempt} failed:`, error);
-    }
-
-    // Reloads the page before the next attempt if the dropdown did not appear.
-    if (attempt < maxAttempts && !page.isClosed()) {
-      await page.reload({ waitUntil: "domcontentloaded", timeout: 20000 });
-    }
-  }
+test.beforeEach(async ({ homePage }) => {
+  await homePage.goto();
+  await homePage.searchForManufacturer("Dyson");
 });
 
 // Test 1: Verifies the 'Im a manufacturer' button is visable, shows expected text and has the correct underlying href.
