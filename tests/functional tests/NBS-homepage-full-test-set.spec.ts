@@ -124,10 +124,10 @@ test("5 Test login via sign in button and same page confirmation", async ({
   // expect(page.url()).toBe(capturedUrl);
 
   // Confirm the user menu button is visible — this only appears when logged in.
-  // Also check it displays the correct user initials ("SP") to confirm the right account logged in.
+  // Also check it displays the correct user initials ("TH") to confirm the right account logged in.
   const userMenuButton = page.getByRole("button", { name: "Open user menu" });
   await expect(userMenuButton).toBeVisible({ timeout: 15000 });
-  await expect(userMenuButton).toHaveText("SP");
+  await expect(userMenuButton).toHaveText("TH");
   await expect(page).toHaveURL(capturedUrl);
 });
 
