@@ -24,20 +24,9 @@ test.beforeEach(async ({ homePage }) => {
   await homePage.searchForManufacturer("Dyson");
 });
 
-// Test 1: Verifies the 'Im a manufacturer' button is visable, shows expected text and has the correct underlying href.
-test("1 Validate the I'm a manufacturer button features", async ({ page }) => {
-  // Checks that the link is visible
-  await expect(
-    page.getByRole("link", { name: "I\'m a manufacturer" }),
-  ).toBeVisible();
-  // expect the link to show the text "I'm a manufacturer" (case-insensitive) to confirm it's the correct element
-  await expect(
-    page.getByRole("link", { name: "I\'m a manufacturer" }),
-  ).toHaveText(/i\'?m a manufacturer/i);
-  // Checks that the link has an href attribute pointing to a manufacturer-related URL
-  await expect(
-    page.getByRole("link", { name: "I\'m a manufacturer" }),
-  ).toHaveAttribute("href", /manufacturer/);
+// Test 1: Verifies the 'Im a manufacturer' button is visible, shows expected text and has the correct underlying href.
+test("1 Validate the I'm a manufacturer button features", async ({ dysonPage }) => {
+  await dysonPage.verifyImAManufacturerButton();
 });
 
 // Test 2: Verifies the 'Inspiration' button is visable, shows expected text and has the correct underlying href.
@@ -116,7 +105,9 @@ test("5 Test login via sign in button and same page confirmation", async ({
   await page.getByRole("button", { name: "Next" }).click();
 
   // Fill in the password from the .env file and submit.
-  await page.getByRole("textbox", { name: "Password" }).click({ timeout: 30000 });
+  await page
+    .getByRole("textbox", { name: "Password" })
+    .click({ timeout: 30000 });
   await page
     .getByRole("textbox", { name: "Password" })
     .fill(process.env.NBS_PASSWORD!);
@@ -131,7 +122,6 @@ test("5 Test login via sign in button and same page confirmation", async ({
   // Confirm the user is back on the same page they were on before logging in.
   // We compare just the pathname (e.g. "/en/manufacturers/dyson") to ignore query strings.
   // expect(page.url()).toBe(capturedUrl);
-
 
   // Confirm the user menu button is visible — this only appears when logged in.
   // Also check it displays the correct user initials ("SP") to confirm the right account logged in.
@@ -152,7 +142,7 @@ test("6 Verify back to top button functionality", async ({ page }) => {
   // Force an instant jump to the bottom — bypasses CSS smooth-scroll animation
   // which behaves differently in headed vs headless mode and races with the assertions.
   await page.evaluate(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" });
   });
 
   // After scrolling down, the button should now be visible.

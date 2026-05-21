@@ -12,26 +12,23 @@
 //   LOCATORS = where an element is.
 //   ACTIONS  = what you do with it.
 
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./base-page";
 
 export class DysonManufacturerHomePage extends BasePage {
   // ===========================================================================
   // LOCATORS  —  elements on the Dyson manufacturer page.
   // Declare each one here. Create it inside the constructor below.
-  // Example:
-  // readonly manufacturerButton: Locator;
-  // readonly backToTopButton: Locator;
   // ===========================================================================
 
+  readonly manufacturerButton: Locator;
 
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
     super(page);
 
-    // Create the Dyson page LOCATORS here. Example:
-    // this.manufacturerButton = page.getByRole("link", { name: "I'm a manufacturer" });
-    // this.backToTopButton = page.locator('[data-cy="backToTopButton"]');
+    // Create the Dyson page LOCATORS here.
+    this.manufacturerButton = page.getByRole("link", { name: "I'm a manufacturer" });
   }
 
 
@@ -43,4 +40,21 @@ export class DysonManufacturerHomePage extends BasePage {
   //   await this.backToTopButton.click();
   // }
   // ===========================================================================
+
+  // ACTION: verifyImAManufacturerButton
+  // Checks the "I'm a manufacturer" button on the homepage.
+  // `Promise<void>` is the return type — it means this method returns NO value,
+  // it only performs checks.
+  // Empty for now — ready for the verification (expect) code to be migrated in.
+  async verifyImAManufacturerButton(): Promise<void> {
+    // Checks that the link is visible
+    await expect(this.manufacturerButton).toBeVisible();
+
+    // Expect the link to show the text "I'm a manufacturer" (case-insensitive).
+    await expect(this.manufacturerButton).toHaveText(/i'm a manufacturer/i);
+
+    // Checks that the link has an href attribute pointing to a manufacturer-related URL.
+    await expect(this.manufacturerButton).toHaveAttribute("href", /manufacturer/);
+  }
+
 }
