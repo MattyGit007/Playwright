@@ -30,28 +30,17 @@ test("1 Validate the I'm a manufacturer button features", async ({ dysonPage }) 
 });
 
 // Test 2: Verifies the 'Inspiration' button is visable, shows expected text and has the correct underlying href.
-test("2 Inspiration nav button is visible and has correct href", async ({
-  page,
-}) => {
-  const inspirationNavButton = page.locator('[data-cy="inspirationNavButton"]');
-
-  // 1. Validate the link is visible
-  await expect(inspirationNavButton).toBeVisible();
-
-  // 2. Validate the underlying href
-  await expect(inspirationNavButton).toHaveAttribute("href", "/en/inspiration");
+test("2 Inspiration nav button is visible and has correct href", async ({ dysonPage }) => { 
+  await dysonPage.verifyInspirationNavButton();
 });
+
+
 
 // Test 3: Checks that all expected navigation items are visible on the page.
 // This is a presence check — it does NOT care about order, just that each item exists.
-test(" 3 validate app view container contents", async ({ page }) => {
-  await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "What\'s new" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Browse" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "BIM Library" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Inspiration" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Collections" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "CPD" })).toBeVisible();
+test(" 3 validate app view container contents", async ({ dysonPage }) => {
+  await dysonPage.verifyAppViewContainerContents();
+
 });
 
 // Test 4: Checks that all nav items are present AND appear in the correct left-to-right order.
