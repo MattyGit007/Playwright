@@ -24,6 +24,11 @@ export class DysonManufacturerHomePage extends BasePage {
   readonly manufacturerButton: Locator;
   readonly inspirationNavButton: Locator;
   readonly mainNavTabs: Locator;
+  readonly signInButton: Locator;
+  readonly signInEmailTextbox: Locator;
+  readonly nextButton: Locator;
+  readonly signInPasswordTextbox: Locator;
+  readonly userMenuButton: Locator;
   
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
@@ -36,6 +41,17 @@ export class DysonManufacturerHomePage extends BasePage {
     this.inspirationNavButton = page.locator(
       '[data-cy="inspirationNavButton"]',
     );
+    this.signInButton = page.getByRole("button", { name: "Sign in" });
+    this.signInEmailTextbox = page.getByRole("textbox", {
+      name: "Email address",
+    });
+    this.nextButton = page.getByRole("button", { name: "Next" });
+    this.signInPasswordTextbox = page.getByRole("textbox", {
+      name: "Password",
+    });
+    this.userMenuButton = page.getByRole("button", {
+      name: "Open user menu",
+    });
 
     // The 7 tab labels inside the main nav. Scoping to the nav's aria-label
     // (rather than a class) makes this resilient to styling changes, and
@@ -127,27 +143,20 @@ export class DysonManufacturerHomePage extends BasePage {
     // Snapshot the current URL so we can verify the user is returned here after login.
     const capturedUrl = this.page.url();
     // Open the sign-in modal and fill in the email address from the .env file.
-    await this.page.getByRole("button", { name: "Sign in" }).click();
-    await this.page.getByRole("textbox", { name: "Email address" }).click();
-    await this.page
-      .getByRole("textbox", { name: "Email address" })
-      .fill(process.env.NBS_USERNAME!);
+    await this.signInButton.click();
+    await this.signInEmailTextbox.click();
+    await this.signInEmailTextbox.fill(process.env.NBS_USERNAME!);
     // Submit the email step — the login form uses a two-step flow (email then password).
-    await this.page.getByRole("button", { name: "Next" }).click();
+    await this.nextButton.click();
     // Fill in the password from the .env file and submit.
-    await this.page
-      .getByRole("textbox", { name: "Password" })
-      .click({ timeout: 30000 });
-    await this.page
-      .getByRole("textbox", { name: "Password" })
-      .fill(process.env.NBS_PASSWORD!);
-    await this.page.getByRole("button", { name: "Sign in" }).click();
+    await this.signInPasswordTextbox.click({ timeout: 30000 });
+    await this.signInPasswordTextbox.fill(process.env.NBS_PASSWORD!);
+    await this.signInButton.click();
     await this.page.waitForLoadState("networkidle", { timeout: 60000 });
     // Verify the user is returned to the same page after login.
     await expect(this.page).toHaveURL(capturedUrl);
     // Verify the user's initials appear in the user menu after login.
-    const userMenu = this.page.getByRole("button", { name: "Open user menu" });
-    await expect(userMenu).toBeVisible();
-    await expect(userMenu).toHaveText("TH");
+    await expect(this.userMenuButton).toBeVisible();
+    await expect(this.userMenuButton).toHaveText("TH");
   }
 }
