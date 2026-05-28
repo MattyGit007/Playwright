@@ -4,11 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test-ui": "npx playwright test --ui --reporter=html",
-    "test-headless": "npx playwright test --project=chromium --repeat-each=10",
+    "test-headless": "npx playwright test --project=chromium --repeat-each=1",
     "test-headed": "npx playwright test NBS-homepage-full-test-set.spec.ts --project=chromium --headed --workers=1",
     "codegen": "npx playwright codegen https://source.thenbs.com/",
     "test:twice": "npx playwright test || npx playwright test",
-    "cucumber": "cucumber-js --require-module ts-node/register --require tests/step_definitions/*.ts tests/features/*.feature --parallel 1",
     "test-debug": "npx playwright test --debug",
     "test-trace": "npx playwright test --project=chromium --trace=on",
     "trace": "npx playwright show-trace"
