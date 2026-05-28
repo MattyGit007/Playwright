@@ -23,14 +23,8 @@ export class DysonManufacturerHomePage extends BasePage {
 
   readonly manufacturerButton: Locator;
   readonly inspirationNavButton: Locator;
-  readonly Homelink: Locator;
-  readonly WhatsNewLink: Locator;
-  readonly BrowseButton: Locator;
-  readonly BIMLibraryButton: Locator;
-  readonly InspirationLink: Locator;
-  readonly CollectionsLink: Locator;
-  readonly CPDLink: Locator;
-
+  readonly mainNavTabs: Locator;
+  
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
     super(page);
@@ -42,13 +36,15 @@ export class DysonManufacturerHomePage extends BasePage {
     this.inspirationNavButton = page.locator(
       '[data-cy="inspirationNavButton"]',
     );
-    this.Homelink = page.getByRole("link", { name: "Home" });
-    this.WhatsNewLink = page.getByRole("link", { name: "What\'s new" });
-    this.BrowseButton = page.getByRole("button", { name: "Browse" });
-    this.BIMLibraryButton = page.getByRole("button", { name: "BIM Library" });
-    this.InspirationLink = page.getByRole("link", { name: "Inspiration" });
-    this.CollectionsLink = page.getByRole("link", { name: "Collections" });
-    this.CPDLink = page.getByRole("link", { name: "CPD" });
+
+    // The 7 tab labels inside the main nav. Scoping to the nav's aria-label
+    // (rather than a class) makes this resilient to styling changes, and
+    // `.mdc-button__label` picks up only the tab buttons/links — the Browse
+    // dropdown's category items use `.menu-panel-link` so they are excluded.
+    this.mainNavTabs = page
+      .getByRole("navigation", { name: "Main navigation links" })
+      .locator(".mdc-button__label");
+
   }
   // ===========================================================================
   // ACTIONS  —  things you do on the Dyson manufacturer page.
@@ -92,39 +88,37 @@ export class DysonManufacturerHomePage extends BasePage {
   }
 
   //ACTION: 3 verifyAppViewContainerContents
-  // Checks the 6 main navigation items are visable and in the correct order (left to right) within the app container on the homepage.
-
+  // Checks that the 7 main navigation tabs are present, have the expected
+  // labels, and appear in the expected left-to-right order.
+ 
   async verifyAppViewContainerContents(): Promise<void> {
-    //chect the following 6 main navigation items are visible on the page and in the correct order
-    await expect(this.Homelink).toBeVisible();
-    await expect(this.WhatsNewLink).toBeVisible();
-    await expect(this.BrowseButton).toBeVisible();
-    await expect(this.BIMLibraryButton).toBeVisible();
-    await expect(this.InspirationLink).toBeVisible();
-    await expect(this.CollectionsLink).toBeVisible();
-    await expect(this.CPDLink).toBeVisible();
-
-    // order check (DOM position)
-    // lastY tracks the x position of the previous item; each new item must be at least as far right.
-    const items = [
-      this.Homelink,
-      this.WhatsNewLink,
-      this.BrowseButton,
-      this.BIMLibraryButton,
-      this.InspirationLink,
-      this.CollectionsLink,
-      this.CPDLink,
-    ];
-
-    let lastY = -1;
-
-    for (const item of items) {
-      const box = await item.boundingBox();
-      expect(box).not.toBeNull();
-
-      expect(box!.x).toBeGreaterThanOrEqual(lastY);
-      lastY = box!.x;
+    // Step 1: assert each tab is actually visible. `toHaveText` only checks
+    // DOM text content, so without this loop a tab hidden via CSS (e.g. the
+    // `small-screen-hide` class at narrow breakpoints) would still pass.
+    const count = await this.mainNavTabs.count();
+    expect(count).toBe(7);
+    for (let i = 0; i < count; i++) {
+      await expect(this.mainNavTabs.nth(i)).toBeVisible();
     }
+ 
+    // Step 2: `toHaveText` with an array does three things in a single
+    // assertion:
+    //   1. Asserts the locator resolves to exactly 7 elements (length match).
+    //   2. Asserts each element's text matches the expected label in order
+    //      (DOM order, which matches visual order for this standard nav).
+    //   3. Normalises whitespace, so rendered labels like " Home " match
+    //      "Home" without extra trim() calls.
+    // If any tab is missing, renamed, or re-ordered the test fails with a
+    // clear diff showing actual vs. expected labels.
+    await expect(this.mainNavTabs).toHaveText([
+      "Home",
+      "What's new",
+      "Browse",
+      "BIM Library",
+      "Inspiration",
+      "Collections",
+      "CPD",
+    ]);
   }
 
   // ACTION: 4 Test login via sign in button and same page confirmation
