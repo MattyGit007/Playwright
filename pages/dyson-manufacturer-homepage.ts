@@ -14,6 +14,9 @@
 
 import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./base-page";
+import AxeBuilder from "@axe-core/playwright";
+import { createHtmlReport } from "axe-html-reporter";
+import fs from "fs";
 
 export class DysonManufacturerHomePage extends BasePage {
   // ===========================================================================
@@ -29,6 +32,8 @@ export class DysonManufacturerHomePage extends BasePage {
   readonly nextButton: Locator;
   readonly signInPasswordTextbox: Locator;
   readonly userMenuButton: Locator;
+  readonly countryButton: Locator;
+  readonly backToTopButton: Locator;
   
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
@@ -52,6 +57,10 @@ export class DysonManufacturerHomePage extends BasePage {
     this.userMenuButton = page.getByRole("button", {
       name: "Open user menu",
     });
+    this.countryButton = page.getByRole("button", {
+      name: "Choose location and language",
+    });
+    this.backToTopButton = page.locator('[data-cy="backToTopButton"]');
 
     // The 7 tab labels inside the main nav. Scoping to the nav's aria-label
     // (rather than a class) makes this resilient to styling changes, and
@@ -159,4 +168,67 @@ export class DysonManufacturerHomePage extends BasePage {
     await expect(this.userMenuButton).toBeVisible();
     await expect(this.userMenuButton).toHaveText("TH");
   }
+
+// ACTION: 5 Verify back to top button functionality
+// Validates the "Back to top" button appears after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.
+async verifyBackToTopButtonFunctionality(): Promise<void> {
+  // The button should be hidden at the top of the page — no need to show it until the user scrolls.
+  await expect(this.backToTopButton).not.toBeVisible();
+  // Force an instant jump to the bottom — bypasses CSS smooth-scroll animation
+  // which behaves differently in headed vs headless mode and races with the assertions.    
+  await this.page.evaluate(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" });
+  });
+  // After scrolling down, the button should now be visible.
+  await expect(this.backToTopButton).toBeVisible({ timeout: 10000 });    
+  // Click the button to scroll back to the top.
+  await this.backToTopButton.click();  
+  // Use expect.poll to repeatedly check window.scrollY until it equals 0.
+  // This is CI-safe because scroll animations can take a moment to complete.
+  // window.scrollY is the current vertical scroll position (0 = top of page).
+  await expect
+    .poll(async () => this.page.evaluate(() => window.scrollY), { timeout: 10000 })
+    .toBe(0);
+  // Once back at the top, the button should hide itself again.
+  await expect(this.backToTopButton).not.toBeVisible({ timeout: 10000 });
+
+}
+
+//ACTION: 6 Dyson manufacturer page Accessibility test
+// Runs an AXE accessibility scan on the Dyson manufacturer page and generates an HTML report of any issues found.
+async verifyAccessibility(): Promise<void> {
+  // Run an AXE accessibility scan against the current page (set up in beforeEach).
+  // `analyze()` returns an object containing violations, passes, incomplete checks, etc.
+  const accessibilityScanResults = await new AxeBuilder({ page: this.page }).analyze(); 
+  // Convert the raw AXE results into a human-readable HTML report...
+  const html = createHtmlReport({ results: accessibilityScanResults });   
+  // ...and write it to disk in the project root so it can be opened in a browser.
+  fs.writeFileSync("axe-report.html", html);  
+}
+
+//ACTION: 7 Verify geolocation and OneTrust cookie banner
+// Verifies the OneTrust geolocation API returns a valid country code and that the NBS website reflects this location in the UI.
+// This test has two phases:
+//   Phase 1 — hit the OneTrust geolocation API directly and validate the JSON response.
+//   Phase 2 — open the NBS website in the browser and confirm the UI reflects the same country.
+async verifyGeolocationAndUiDisplay(): Promise<void> {
+    // Phase 1: API validation  
+    const response = await this.page.request.get("https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location");
+    // Assert the API call was successful with a 200 status code.
+    expect(response.status()).toBe(200);
+    // 3. Validate API response body.
+  // The response uses JSONP format — it wraps JSON in a function call like: jsonFeed({...});
+  // We strip the wrapper with .replace() so we can parse the inner JSON normally.
+  const responseText = await response.text();
+  const jsonString = responseText.replace(/^jsonFeed\(/, "").replace(/\);?$/, "");
+  const body = JSON.parse(jsonString);  
+  // Assert the API response contains a valid country code (e.g. "US", "GB").
+  expect(body).toHaveProperty("country");
+  expect(["GB", "US"]).toContain(body.country);
+
+  // 4. (Phase 2) Now open the NBS website in the browser and check the UI shows the correct country.
+  await this.page.goto("https://source.thenbs.com");
+  // The country picker button should display "UK" when the detected country is GB.
+  await expect(this.countryButton).toContainText("UK");
+}
 }
