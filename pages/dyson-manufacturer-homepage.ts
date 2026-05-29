@@ -33,6 +33,7 @@ export class DysonManufacturerHomePage extends BasePage {
   readonly signInPasswordTextbox: Locator;
   readonly userMenuButton: Locator;
   readonly countryButton: Locator;
+  readonly backToTopButton: Locator;
   
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
@@ -59,6 +60,7 @@ export class DysonManufacturerHomePage extends BasePage {
     this.countryButton = page.getByRole("button", {
       name: "Choose location and language",
     });
+    this.backToTopButton = page.locator('[data-cy="backToTopButton"]');
 
     // The 7 tab labels inside the main nav. Scoping to the nav's aria-label
     // (rather than a class) makes this resilient to styling changes, and
@@ -170,19 +172,17 @@ export class DysonManufacturerHomePage extends BasePage {
 // ACTION: 5 Verify back to top button functionality
 // Validates the "Back to top" button appears after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.
 async verifyBackToTopButtonFunctionality(): Promise<void> {
-  // Find the back-to-top button using its data-cy test ID attribute.
-  const backToTopButton = this.page.locator('[data-cy="backToTopButton"]'); 
   // The button should be hidden at the top of the page — no need to show it until the user scrolls.
-  await expect(backToTopButton).not.toBeVisible();
+  await expect(this.backToTopButton).not.toBeVisible();
   // Force an instant jump to the bottom — bypasses CSS smooth-scroll animation
   // which behaves differently in headed vs headless mode and races with the assertions.    
   await this.page.evaluate(() => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" });
   });
   // After scrolling down, the button should now be visible.
-  await expect(backToTopButton).toBeVisible({ timeout: 10000 });    
+  await expect(this.backToTopButton).toBeVisible({ timeout: 10000 });    
   // Click the button to scroll back to the top.
-  await backToTopButton.click();  
+  await this.backToTopButton.click();  
   // Use expect.poll to repeatedly check window.scrollY until it equals 0.
   // This is CI-safe because scroll animations can take a moment to complete.
   // window.scrollY is the current vertical scroll position (0 = top of page).
@@ -190,7 +190,7 @@ async verifyBackToTopButtonFunctionality(): Promise<void> {
     .poll(async () => this.page.evaluate(() => window.scrollY), { timeout: 10000 })
     .toBe(0);
   // Once back at the top, the button should hide itself again.
-  await expect(backToTopButton).not.toBeVisible({ timeout: 10000 });
+  await expect(this.backToTopButton).not.toBeVisible({ timeout: 10000 });
 
 }
 
