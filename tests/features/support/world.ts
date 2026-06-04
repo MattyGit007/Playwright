@@ -11,11 +11,11 @@ import { HomePage } from "../../../pages/home-page";
 import { DysonManufacturerHomePage } from "../../../pages/dyson-manufacturer-homepage";
 
 export class CustomWorld extends World {
-  browser?: Browser;
-  context?: BrowserContext;
-  page?: Page;
-  homePage?: HomePage;
-  dysonPage?: DysonManufacturerHomePage;
+  browser!: Browser;
+  context!: BrowserContext;
+  page!: Page;
+  homePage!: HomePage;
+  dysonPage!: DysonManufacturerHomePage;
 
   constructor(options: IWorldOptions) {
     super(options);

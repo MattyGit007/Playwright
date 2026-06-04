@@ -5,8 +5,8 @@
  * It connects the human-readable feature file steps to actual code that runs browser automation.
  */
 
-// Import Cucumber step keywords (Given, When, Then, And, But) and timeout utility
-import { And, But, Given, Then, When, setDefaultTimeout } from "@cucumber/cucumber";
+// Import Cucumber step keywords (Given, When, Then) and timeout utility
+import { Given, Then, When, setDefaultTimeout } from "@cucumber/cucumber";
 
 // Import assertion library from Playwright for verifying test results
 import { expect } from "@playwright/test";
@@ -48,7 +48,7 @@ When("I search for the manufacturer {string}", async function (
 /**
  * THEN Step: Verify the outcome (Assertion)
  * 
- * Gherkin: "Then I should see the 'I'm a manufacturer' button on the page"
+ * Gherkin: "Then I should see the 'I'm a manufacturer' button on the page and verify its has the correct href "
  * 
  * @param buttonLabel - The button text to verify (e.g., "I'm a manufacturer")
  */
@@ -56,20 +56,17 @@ Then("I should see the {string} button on the page", async function (
   this: CustomWorld,
   buttonLabel: string,
 ) {
-  // Step 1: Verify the button's business logic using the page object
+  // Step 1: Verify the button's business logic using the page object and verify its visible and has the correct href 
   // The page object encapsulates specific verification logic for this button
   await this.dysonPage.verifyImAManufacturerButton();
   
-  // Step 2: Assert that the button is visible on the page
-  // getByRole finds elements by their accessibility role (in this case, a link)
-  // The assertion will fail if the button is not visible, causing the test to fail
-  await expect(this.page.getByRole("link", { name: buttonLabel })).toBeVisible();
+  
 });
 
 /**
  * THEN Step: Verify another outcome (Assertion)
  * 
- * Gherkin: "Then I should see the 'Inspiration' navigation button on the page"
+ * Gherkin: "Then I should see the 'Inspiration' navigation button on the page and verify its has the correct href "
  * 
  * @param buttonLabel - The button text to verify (e.g., "Inspiration")
  */
@@ -80,7 +77,35 @@ Then("I should see the {string} navigation button on the page", async function (
   // Step 1: Verify the navigation button's business logic using the page object
   await this.dysonPage.verifyInspirationNavButton();
   
-  // Step 2: Assert that the navigation button text is visible on the page
-  // getByText finds elements containing the specified text
-  await expect(this.page.getByText(buttonLabel)).toBeVisible();
 });
+
+/**
+ * THEN Step: Verify navigation items (Assertion)
+ * 
+ * Gherkin: "Then I should see all navigation items in the correct order"
+ * 
+ * This step validates that all 7 main navigation tabs are present, visible, and appear
+ * in the expected left-to-right order: Home, What's new, Browse, BIM Library, Inspiration, Collections, CPD
+ */
+Then("I should see all navigation items in the correct order", async function (
+  this: CustomWorld,
+) {
+  // Call the page object method that verifies all nav items are present, visible, and in correct order
+  await this.dysonPage.verifyAppViewContainerContents();
+});
+/**
+ * THEN Step: Verify sign in button and return to same page (Assertion)
+ * 
+ * Gherkin: "I can login via the Sign in button, ensuring Im returned to the same page"
+ * 
+ * This step validates that sign in button functionality and ensures the user is returned to the same page
+ */
+
+Then("I can login via the Sign in button, ensuring Im returned to the same page", async function (
+this: CustomWorld,
+buttonLabel: string,
+) {
+  // Call the page object method that verifies sign in button functionality and ensures the user is returned to the same page
+ await this.dysonPage.verifyLoginFunctionality();
+});
+
