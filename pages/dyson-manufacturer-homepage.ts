@@ -85,12 +85,18 @@ export class DysonManufacturerHomePage extends BasePage {
   // `Promise<void>` is the return type — it means this method returns NO value,
   // it only performs checks.
   // Empty for now — ready for the verification (expect) code to be migrated in.
-  async verifyImAManufacturerButton(): Promise<void> {
+  // `buttonLabel` is the text captured from the feature file's {string}
+  // (e.g. "I'm a manufacturer"). The text assertion below uses it, so the
+  // expected label lives in the Gherkin, not hardcoded here.
+  async verifyImAManufacturerButton(buttonLabel: string): Promise<void> {
     // Checks that the link is visible
     await expect(this.manufacturerButton).toBeVisible();
-    // Expect the link to show the text "I'm a manufacturer" (case-insensitive).
-    await expect(this.manufacturerButton).toHaveText(/i'm a manufacturer/i);
+    // Expect the link's text to match the label passed in from the feature file.
+    // This is an exact (whitespace-normalised) match, so it validates the label precisely.
+    await expect(this.manufacturerButton).toHaveText(buttonLabel);
     // Checks that the link has an href attribute pointing to a manufacturer-related URL.
+    // The href pattern stays here in the page object — it can't be reliably derived
+    // from the button label, and URLs/selectors are the page object's responsibility.
     await expect(this.manufacturerButton).toHaveAttribute(
       "href",
       /manufacturer/,

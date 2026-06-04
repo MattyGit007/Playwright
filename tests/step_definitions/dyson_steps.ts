@@ -52,15 +52,15 @@ When("I search for the manufacturer {string}", async function (
  * 
  * @param buttonLabel - The button text to verify (e.g., "I'm a manufacturer")
  */
-Then("I should see the {string} button on the page", async function (
+Then("I should see the {string} button on the page, verify its visible and has the correct href", async function (
   this: CustomWorld,
   buttonLabel: string,
 ) {
-  // Step 1: Verify the button's business logic using the page object and verify its visible and has the correct href 
-  // The page object encapsulates specific verification logic for this button
-  await this.dysonPage.verifyImAManufacturerButton();
-  
-  
+  // Step 1: Verify the button's business logic using the page object.
+  // We pass buttonLabel (captured from the {string} in the feature file) through
+  // so the page object asserts against the exact text from the Gherkin, instead
+  // of a value hardcoded in the page object.
+  await this.dysonPage.verifyImAManufacturerButton(buttonLabel);
 });
 
 /**
