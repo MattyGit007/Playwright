@@ -1,3 +1,5 @@
+import "dotenv/config"; // Load environment variables from .env file
+import path from "path";
 import {
   After,
   Before,
@@ -27,12 +29,22 @@ setWorldConstructor(CustomWorld);
 Before(async function (this: CustomWorld) {
   this.browser = await chromium.launch({ headless: true });
   this.context = await this.browser.newContext();
+  await this.context.tracing.start({
+    screenshots: true,
+    snapshots: true,
+    sources: true,
+  });
   this.page = await this.context.newPage();
   this.homePage = new HomePage(this.page);
   this.dysonPage = new DysonManufacturerHomePage(this.page);
 });
 
 After(async function (this: CustomWorld, { result }) {
+  const tracePath = path.join(process.cwd(), "artifacts", `trace-${Date.now()}.zip`);
+  if (this.context) {
+    await this.context.tracing.stop({ path: tracePath });
+  }
+
   if (result?.status === Status.FAILED && this.page) {
     const screenshot = await this.page.screenshot({ type: "png", fullPage: true });
     await this.attach(screenshot, "image/png");

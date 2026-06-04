@@ -96,7 +96,7 @@ Then("I should see all navigation items in the correct order", async function (
  */
 Then("I can login via the Sign in button, ensuring Im returned to the same page", async function (
 this: CustomWorld,
-buttonLabel: string,
+
 ) {
   // Call the page object method that verifies sign in button functionality and ensures the user is returned to the same page
  await this.dysonPage.verifyLoginFunctionality();
