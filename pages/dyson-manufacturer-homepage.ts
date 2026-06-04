@@ -106,12 +106,12 @@ export class DysonManufacturerHomePage extends BasePage {
   //ACTION: 2 verifyInspirationNavButton
   // Checks the 'Inspiration' link is visable on the homepage.
 
-  async verifyInspirationNavButton(): Promise<void> {
+  async verifyInspirationNavButton(buttonLabel: string): Promise<void> {
     // Checks that the "Inspiration" nav button is visible
     await expect(this.inspirationNavButton).toBeVisible();
     // Expect the link to show the text "Inspiration" (case-insensitive).
-    await expect(this.inspirationNavButton).toHaveText(/inspiration/i);
-    // Checks that the link has an href attribute pointing to an inspiration-related URL.
+    await expect(this.inspirationNavButton).toHaveText(buttonLabel)
+          // Checks that the link has an href attribute pointing to an inspiration-related URL.
     await expect(this.inspirationNavButton).toHaveAttribute(
       "href",
       /inspiration/,

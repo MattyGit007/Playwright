@@ -26,12 +26,12 @@ test.beforeEach(async ({ homePage }) => {
 
 // Test 1: Verifies the 'Im a manufacturer' button is visible, shows expected text and has the correct underlying href.
 test("1 Validate the I'm a manufacturer button features", async ({dysonPage,}) => {
-  await dysonPage.verifyImAManufacturerButton();
+  await dysonPage.verifyImAManufacturerButton(  "I'm a manufacturer" );
 });
 
 // Test 2: Verifies the 'Inspiration' button is visable, shows expected text and has the correct underlying href.
 test("2 Inspiration nav button is visible and has correct href", async ({dysonPage,}) => {
-  await dysonPage.verifyInspirationNavButton();
+  await dysonPage.verifyInspirationNavButton("Inspiration");
 });
 
 // Test 3: Checks that all nav items are present AND appear in the correct left-to-right order.

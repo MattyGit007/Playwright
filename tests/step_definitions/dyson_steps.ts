@@ -16,7 +16,6 @@ import { CustomWorld } from "../features/support/world";
 
 // Set a 60-second timeout for all steps to prevent tests from hanging indefinitely
 setDefaultTimeout(60 * 1000);
-
 /**
  * GIVEN Step: Set up the initial state
  * 
@@ -27,7 +26,6 @@ Given("I am on the NBS Source homepage", async function (this: CustomWorld) {
   // Call the goto() method on the HomePage page object to navigate to the URL
   await this.homePage.goto();
 });
-
 /**
  * WHEN Step: Perform an action
  * 
@@ -44,7 +42,6 @@ When("I search for the manufacturer {string}", async function (
   // This method handles typing in the search field and submitting the form
   await this.homePage.searchForManufacturer(manufacturerName);
 });
-
 /**
  * THEN Step: Verify the outcome (Assertion)
  * 
@@ -62,7 +59,6 @@ Then("I should see the {string} button on the page, verify its visible and has t
   // of a value hardcoded in the page object.
   await this.dysonPage.verifyImAManufacturerButton(buttonLabel);
 });
-
 /**
  * THEN Step: Verify another outcome (Assertion)
  * 
@@ -70,15 +66,13 @@ Then("I should see the {string} button on the page, verify its visible and has t
  * 
  * @param buttonLabel - The button text to verify (e.g., "Inspiration")
  */
-Then("I should see the {string} navigation button on the page", async function (
+Then("I should see the {string} navigation button on the page, verify its visible and has the correct href", async function (
   this: CustomWorld,
   buttonLabel: string,
 ) {
   // Step 1: Verify the navigation button's business logic using the page object
-  await this.dysonPage.verifyInspirationNavButton();
-  
+  await this.dysonPage.verifyInspirationNavButton(buttonLabel); 
 });
-
 /**
  * THEN Step: Verify navigation items (Assertion)
  * 
@@ -100,7 +94,6 @@ Then("I should see all navigation items in the correct order", async function (
  * 
  * This step validates that sign in button functionality and ensures the user is returned to the same page
  */
-
 Then("I can login via the Sign in button, ensuring Im returned to the same page", async function (
 this: CustomWorld,
 buttonLabel: string,
