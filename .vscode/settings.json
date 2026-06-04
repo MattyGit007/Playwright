@@ -1,0 +1,10 @@
+{
+  "cucumberautocomplete.steps": [
+    "tests/step_definitions/**/*.ts"
+  ],
+  "cucumberautocomplete.syncFeatures": "tests/features/**/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": true,
+  "[gherkin]": {
+    "editor.defaultFormatter": "alexkrechik.cucumberautocomplete"
+  }
+}

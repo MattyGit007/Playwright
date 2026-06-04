@@ -10,18 +10,21 @@
     "test:twice": "npx playwright test || npx playwright test",
     "test-debug": "npx playwright test --debug",
     "test-trace": "npx playwright test --project=chromium --trace=on",
-    "trace": "npx playwright show-trace"
-
-
+    "trace": "npx playwright show-trace",
+    "cucumber": "cucumber-js",
+    "cucumber:trace": "npx cucumber-js tests/features --require-module ts-node/register --require tests/step_definitions/**/*.ts --require tests/features/support/**/*.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
+    "@cucumber/cucumber": "^12.9.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.12.2",
     "axe-html-reporter": "^2.2.11",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
