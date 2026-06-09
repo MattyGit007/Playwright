@@ -102,3 +102,29 @@ this: CustomWorld,
  await this.dysonPage.verifyLoginFunctionality();
 });
 
+/** * THEN Step: Verify "Back to top" button functionality (Assertion)
+ * 
+ * Gherkin: "I should see the "Back to top" button appear after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again."   
+ * 
+ * This step validates the "Back to top" button appears after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.
+ */
+Then('I should see the "Back to top" button appear after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.', async function (  
+  this: CustomWorld,
+) {
+  // Call the page object method that verifies the "Back to top" button functionality
+  await this.dysonPage.verifyBackToTopButtonFunctionality();
+}); 
+
+Then("I can run an AXE accessibility scan on the Dyson manufacturer page and generate an HTML report of any issues found.", async function (
+  this: CustomWorld,
+) {
+  // Call the page object method that runs an AXE accessibility scan and generates an HTML report
+  await this.dysonPage.verifyAccessibility();
+}); 
+
+Then("I can validate the OneTrust geolocation API returns a valid country code and that the NBS website reflects this location in the UI.", async function (
+  this: CustomWorld,
+) {
+  // Call the page object method that validates the OneTrust geolocation API and UI display
+  await this.dysonPage.verifyGeolocationAndUiDisplay();
+});
