@@ -17,3 +17,12 @@ Feature: Dyson manufacturer page
     
   Scenario: 4 As a user, I can login via the Sign in button, and ensure the user is returned to the same page
     Then I can login via the Sign in button, ensuring Im returned to the same page
+
+  Scenario: 5 As a user, I can validate the "Back to top" button appears after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.
+    Then I should see the "Back to top" button appear after scrolling down, successfully scrolls the page back to the top when clicked, and then hides itself again.  
+
+  Scenario: 6 As a user, I can run an AXE accessibility scan on the Dyson manufacturer page and generate an HTML report of any issues found. 
+    Then I can run an AXE accessibility scan on the Dyson manufacturer page and generate an HTML report of any issues found.
+
+  Scenario: 7 As a user, I can validate the OneTrust geolocation API returns a valid country code and that the NBS website reflects this location in the UI.
+    Then I can validate the OneTrust geolocation API returns a valid country code and that the NBS website reflects this location in the UI.

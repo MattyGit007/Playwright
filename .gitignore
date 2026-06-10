@@ -7,4 +7,14 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 .env
-/artifacts/accessibilityReport.html/
+# Generated test artifacts (reports, traces, raw message streams).
+# Keep the folder (.gitkeep) but ignore everything generated inside it.
+/artifacts/*
+!/artifacts/.gitkeep
+
+# Allure reporting: raw results and the generated HTML report are both build output.
+/allure-results/
+/allure-report/
+
+# Generated accessibility (AXE) report written to the repo root.
+/axe-report.html
