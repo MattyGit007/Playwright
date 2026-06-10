@@ -29,19 +29,25 @@ setWorldConstructor(CustomWorld);
 Before(async function (this: CustomWorld) {
   this.browser = await chromium.launch({ headless: true });
   this.context = await this.browser.newContext();
-  await this.context.tracing.start({
-    screenshots: true,
-    snapshots: true,
-    sources: true,
-  });
+  
+  // Only start tracing if TRACE environment variable is set to 'on'
+  if (process.env.TRACE === 'on') {
+    await this.context.tracing.start({
+      screenshots: true,
+      snapshots: true,
+      sources: true,
+    });
+  }
+  
   this.page = await this.context.newPage();
   this.homePage = new HomePage(this.page);
   this.dysonPage = new DysonManufacturerHomePage(this.page);
 });
 
 After(async function (this: CustomWorld, { result }) {
-  const tracePath = path.join(process.cwd(), "artifacts", `trace-${Date.now()}.zip`);
-  if (this.context) {
+  // Only save trace if it was started
+  if (process.env.TRACE === 'on' && this.context) {
+    const tracePath = path.join(process.cwd(), "artifacts", `trace-${Date.now()}.zip`);
     await this.context.tracing.stop({ path: tracePath });
   }
 
