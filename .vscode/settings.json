@@ -4,6 +4,13 @@
   ],
   "cucumberautocomplete.syncFeatures": "tests/features/**/*.feature",
   "cucumberautocomplete.strictGherkinCompletion": true,
+  "eslint.enable": true,
+  "eslint.validate": [
+    "typescript",
+    "javascript",
+    "javascriptreact",
+    "typescriptreact"
+  ],
   "[gherkin]": {
     "editor.defaultFormatter": "alexkrechik.cucumberautocomplete"
   }
