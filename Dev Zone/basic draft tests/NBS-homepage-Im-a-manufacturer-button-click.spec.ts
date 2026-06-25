@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test} from "@playwright/test";
 
 test("Click on I'm a manufacturer", async ({ page }) => {
   await page.goto("https://source.thenbs.com");
