@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running lint-staged (ESLint) on staged files..."
+npx --no-install lint-staged
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+	echo "lint-staged passed — commit allowed."
+	exit 0
+fi
+
+echo
+echo "========================================"
+echo "ERROR: lint-staged reported problems."
+echo "Commit aborted. Fix the issues or run one of the following:" 
+echo
+echo "  npm run lint     # list issues"
+echo "  npm run lint:fix # apply auto-fixes if desired"
+echo
+echo "To debug which files were checked: npx lint-staged --debug"
+echo "========================================"
+exit $STATUS
