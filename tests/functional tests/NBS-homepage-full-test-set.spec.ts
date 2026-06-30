@@ -9,9 +9,7 @@
 // `test` and `expect` come from our fixtures file (NOT "@playwright/test").
 // That is what makes `homePage`, `dysonPage` etc. available in the tests below.
 import { test, expect } from "../../fixtures/test-fixtures";
-import AxeBuilder from "@axe-core/playwright";
-import { createHtmlReport } from "axe-html-reporter";
-import fs from "fs";
+// Accessibility tools are used within page fixtures; no direct imports needed here.
 
 // increase the default test timeout for this file since page loads and interactions can take a while
 test.describe.configure({ timeout: 60000 });
@@ -64,3 +62,4 @@ test("6 Dyson manufacturer page Accessibility test", async ({dysonPage,}) => {
 test("7 Verify API content and UI display", async ({ dysonPage,}) => {
   await dysonPage.verifyGeolocationAndUiDisplay();
 });
+
