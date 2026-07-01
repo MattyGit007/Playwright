@@ -25,7 +25,7 @@ export class HomePage extends BasePage {
 
   // The close button for the "new feature" announcement dialog.
   // This popup appears to inform users about new features like NBS LCA.
-  readonly newFeatureDialogCloseButton: Locator;
+  readonly newFeaturePopupCloseButton: Locator;
 
   constructor(page: Page) {
     // `super(page)` hands `page` to BasePage so the shared setup runs first.
@@ -33,7 +33,9 @@ export class HomePage extends BasePage {
 
     // Create the homepage LOCATORS here.
     this.searchBox = page.getByRole("textbox", { name: "Search" });
-    this.newFeatureDialogCloseButton = page.getByTestId("newFeatureDialogCloseButton");
+    this.newFeaturePopupCloseButton = page.locator(
+      '[data-cy="newFeatureDialogIconCloseButton"]',
+    );
   }
 
 
@@ -58,7 +60,7 @@ export class HomePage extends BasePage {
     await this.page.waitForLoadState("domcontentloaded");
     // Close any "new feature announcement" popup that may have appeared.
     // This ensures the search box is unobstructed for subsequent interactions.
-    await this.closeNewFeaturePopupIfPresent();
+    await this.dismissNewFeaturePopupIfPresent();
   }
 
   // ACTION: searchForManufacturer
@@ -120,7 +122,7 @@ export class HomePage extends BasePage {
       if (attempt < maxAttempts && !this.page.isClosed()) {
         await this.page.reload({ waitUntil: "domcontentloaded", timeout: 20000 });
         // Close the popup again if it appears on reload.
-        await this.closeNewFeaturePopupIfPresent();
+        await this.dismissNewFeaturePopupIfPresent();
       }
     }
   }
@@ -134,36 +136,29 @@ export class HomePage extends BasePage {
     // TODO: migrate the "I'm a manufacturer" button checks here.
   }
 
-  // ACTION: closeNewFeaturePopupIfPresent
-  // Closes the "new feature announcement" dialog if it appears on the homepage.
-  // If the popup is not present, the method silently continues without error.
-  // This is useful in beforeEach hooks to ensure tests start on a clean homepage.
-  async closeNewFeaturePopupIfPresent(): Promise<void> {
+  // ACTION: dismissNewFeaturePopupIfPresent
+  // The "new feature announcement" dialog can appear a moment or two after the
+  // page loads, so we wait a short while for its close button to become visible.
+  // If it never shows (the site may not display it on every visit, or may drop
+  // it later), the wait times out, we swallow that and carry on — its absence is
+  // expected, not a failure. When it is there we click the close button and wait
+  // for it to disappear, so the dialog can't intercept the next click (e.g. on
+  // the search box) before it has finished closing.
+  async dismissNewFeaturePopupIfPresent(): Promise<void> {
     try {
-      // Try closing via the main close button first.
-      const closeButton = this.newFeatureDialogCloseButton;
-      
-      // Check if close button exists in the DOM and is visible.
-      const isVisible = await closeButton.isVisible().catch(() => false);
-      
-      if (isVisible) {
-        // Click the close button.
-        await closeButton.click();
-        
-        // Wait for the dialog to fully animate away.
-        await this.page.waitForTimeout(1000);
-        
-        // Verify the dialog is no longer present by checking if search box becomes visible.
-        await this.page.locator("app-new-feature-dialog").waitFor({ 
-          state: "hidden", 
-          timeout: 5000 
-        }).catch(() => {
-          // If dialog doesn't hide, that's okay — we tried.
-        });
-      }
-    } catch (error) {
-      // Popup close failed or popup not present — continue anyway.
-      // The test will handle visibility checks for the search box.
+      await this.newFeaturePopupCloseButton.waitFor({
+        state: "visible",
+        timeout: 5000,
+      });
+    } catch {
+      // No popup this time — nothing to dismiss, so just continue.
+      return;
     }
+
+    await this.newFeaturePopupCloseButton.click();
+    await this.newFeaturePopupCloseButton.waitFor({
+      state: "hidden",
+      timeout: 5000,
+    });
   }
 }
