@@ -18,3 +18,4 @@ node_modules/
 
 # Generated accessibility (AXE) report written to the repo root.
 /axe-report.html
+.eslintcache
