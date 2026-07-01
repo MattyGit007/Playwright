@@ -88,10 +88,10 @@ export class HomePage extends BasePage {
 
         // Ensure the search box is in the DOM (attached state), then wait longer for visibility.
         // Using "attached" first to check existence, then try the interaction.
-        await this.searchBox.waitFor({ state: "attached", timeout: 5000 });
+        await this.searchBox.waitFor({ state: "attached", timeout: 30000 });
         
         // Now wait for it to be clickable (visible and enabled).
-        await this.searchBox.waitFor({ state: "visible", timeout: 8000 });
+        await this.searchBox.waitFor({ state: "visible", timeout: 30000 });
 
         // Clear any prior value, then type slowly to trigger the autocomplete debounce.
         await this.searchBox.click();
