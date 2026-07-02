@@ -30,8 +30,8 @@ for the whole project. It contains:
 - **Dependencies** — the list of external tools your project needs to run. In this project you'll
   see `@playwright/test` (Playwright itself) and `@types/node` (type information for Node.js).
 - **Scripts** — handy shortcut commands you can run. In this project we have:
-  - `npm run test:headless` → runs the tests silently in the background (no visible browser).
-  - `npm run test:ui` → runs the tests in Playwright's visual **UI mode**, so you can watch them.
+  - `npm run test-headless` → runs the tests silently in the background (no visible browser).
+  - `npm run test-ui` → runs the tests in Playwright's visual **UI mode**, so you can watch them.
   - `npm run codegen` → opens Playwright's code generator to help you record tests.
 
 > **Why it matters:** When someone new clones this project, they run `npm install`, and npm reads
