@@ -4,8 +4,7 @@ In the last document we learned what each file in the project does. Now we're go
 **how our tests are written** by introducing the **Page Object Model** (POM).
 
 This guide walks you through it slowly, using the code we *already have* in
-`tests/first-test.spec.ts`. By the end you'll have:
-
+`tests/functional tests/NBS-homepage-full-test-set.spec.ts`. By the end you'll have:
 - A page object for the **NBS homepage** (searching and navigating).
 - A page object for the **Dyson manufacturer page** (the checks/assertions).
 - Each page object neatly split into a **Locators** section and an **Actions** section.
