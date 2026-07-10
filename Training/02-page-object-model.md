@@ -370,7 +370,7 @@ Follow this order and you can't go wrong:
 5. **Create the fixture file** (`fixtures/test-options.ts`) and register each page object.
 6. **Update the test's import** to come from the fixture file.
 7. **Ask for the page objects** in `beforeEach` / tests instead of using raw `page`.
-8. **Run the tests** (`npm run test:ui`) and confirm everything still passes. ✅
+8. **Run the tests** (`npm run test-ui`) and confirm everything still passes. ✅
 
 > **Golden rule:** migrate **one page at a time** and run the tests after each step. If something
 > breaks, you'll know exactly which change caused it.

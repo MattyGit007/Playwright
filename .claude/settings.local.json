@@ -7,7 +7,9 @@
       "PowerShell(npm install *)",
       "PowerShell(npx allure run --help 2>&1 | Select-Object -First 35)",
       "Bash(sed -n '4,12p' node_modules/@allurereport/plugin-api/dist/plugin.d.ts)",
-      "Bash(sed -n '4,26p' node_modules/@allurereport/plugin-api/dist/config.d.ts)"
+      "Bash(sed -n '4,26p' node_modules/@allurereport/plugin-api/dist/config.d.ts)",
+      "PowerShell(Get-ChildItem -Force | Where-Object { $_.Name -ne 'node_modules' } | Select-Object Mode, Name)",
+      "PowerShell(foreach \\($d in 'pages','fixtures','scripts','tests'\\) { \"--- $d ---\"; Get-ChildItem -Recurse -File $d | ForEach-Object { $_.FullName.Replace\\(\\(Get-Location\\).Path + '\\\\', ''\\) } })"
     ]
   }
 }
