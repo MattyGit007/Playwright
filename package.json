@@ -11,6 +11,7 @@
     "test-debug": "npx playwright test --debug",
     "test-trace": "npx playwright test --project=chromium --trace=on",
     "trace": "npx playwright show-trace",
+    "test:cucumber": "npx cucumber-js --config cucumber.js",
     "cucumber:report": "node scripts/generate-report.mjs",
     "cucumber:report:trace": "node scripts/generate-report-with-trace.mjs",
     "lint": "eslint . --ext .ts",
